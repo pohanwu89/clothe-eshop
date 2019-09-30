@@ -17,8 +17,10 @@ export const createUserProfileDocument = async (userAuth, additionalData) => {
   if (!userAuth) {
     return;
   } else {
-    const userRef = firestore.doc(`users/${userAuth.uid}`) //get the queryrefernece
-    const snapShot = await userRef.get()//get the data
+    //get the queryrefernece (a query is as asking firestore for data/reference (can use CRUD method)is an obj represent the current place  ih the database that we are querying)
+    const userRef = firestore.doc(`users/${userAuth.uid}`)
+    //use ref.get() to get the data(snapshot) by reference
+    const snapShot = await userRef.get()
 
     if (!snapShot.exists) {
       const { displayName, email } = userAuth;
