@@ -10,6 +10,7 @@ import { setCurrentUser } from './redux/user/user.actions'
 import SigninAndSignup from './pages/signin-and-signup/SigninAndSignup'
 import { selectCurrentUser } from './redux/user/user.selector'
 import { auth, createUserProfileDocument } from './firebase/firebase.utils'
+import { selectCollectionsForPreview } from './redux/shop/shop.selector'
 import './App.css';
 
 
@@ -34,6 +35,12 @@ class App extends Component {
       } else {
         // sign out => userAuth = null
         this.props.setCurrentUser(userAuth)
+        //========================================= send shop data to firebase
+        // // destruction the array to get the data we want to save to db
+        // addCollectionAndDocuments('collections', collectionsArray.map(({ title, items }) =>
+        //   ({ title, items })
+        // ))
+        //=========================================
       }
     })
 
@@ -66,7 +73,8 @@ class App extends Component {
   }
 }
 const mapStateToProps = createStructuredSelector({
-  currentUser: selectCurrentUser
+  currentUser: selectCurrentUser,
+  collectionsArray: selectCollectionsForPreview
 })
 
 
