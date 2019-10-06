@@ -1,61 +1,60 @@
 import React, { Component } from 'react'
 import { Route } from 'react-router-dom'
 import { connect } from 'react-redux'
-import CollectionPage from '../collection/Collection'
-import CollectionOverview from '../../components/collections-overview/CollectionsOverview'
-import { updateCollections } from '../../redux/shop/shop.action'
-import { firestore, covertCollectionsSnapshotToMap } from '../../firebase/firebase.utils'
-import WithSpinner from '../../components/withSpinner/WithSpinner'
-import axios from 'axios'
+import CollectionContainer from '../collection/CollectionContainer'
+import { fetchCollectionsStart } from '../../redux/shop/shop.action'
+import CollectionsOverviewContainer from '../../components/collections-overview/CollectionsOverviewContainer'
 
-const CollectionOverviewWithSpinner = WithSpinner(CollectionOverview)
-const CollectionPageWithSpinner = WithSpinner(CollectionPage)
 class ShopPage extends Component {
-  constructor() {
-    super()
+  // constructor() {
+  //   super()
 
-    this.state = {
-      loading: true
-    }
-  }
+  //   this.state = {
+  //     loading: true
+  //   }
+  // }
+  // unsubsribeFromSnapShot = null;
+  /*we use redux to fetch data*/
 
-  unsubsribeFromSnapShot = null;
   componentDidMount() {
-    const { updateCollections } = this.props
-    //we get the data use this method, so we can get the snapshot obj of collection
-    const collectionRef = firestore.collection('collections')
 
-    // we use.get() to make a api call to get a data(it's a promise so we can use then())
-    collectionRef.get().then(
-      (async (snapshot) => {
-        const collectionsMap = covertCollectionsSnapshotToMap(snapshot)
-        updateCollections(collectionsMap)
-        this.setState({ loading: false })
-      })
-    )
+    const { fetchCollectionsStart } = this.props
+    fetchCollectionsStart()
+
+    /* thunk version
+        const { fetchCollectionsStartAsync } = this.props
+        fetchCollectionsStartAsync()
+     */
+
+    /* we use redux to fetch data, so no need the following code*/
+    // const { updateCollections } = this.props
+    // //we get the data use this method, so we can get the snapshot obj of collection
+    // const collectionRef = firestore.collection('collections')
+
+    // // we use.get() to make a api call to get a data(it's a promise so we can use then())
+    // collectionRef.get().then(
+    //   (async (snapshot) => {
+    //     const collectionsMap = covertCollectionsSnapshotToMap(snapshot)
+    //     updateCollections(collectionsMap)
+    //     this.setState({ loading: false })
+    //   })
+    // )
+
+    /* **** because componentDidMount() is called after the initial render method,  and pass false to the isLoading of spinner, so it will directly to render collection page. so we should make a new selector to check if data is actaully loaded.   */
   }
-
   render() {
     /* we can get the access to match because shoppage is rendered by Route */
     const { match } = this.props
-    const { loading } = this.state
-    console.log(match)
     return (
       <div className="shop-page">
         <Route
           exact
           path={`${match.path}`}
-          render={(props) =>
-            <CollectionOverviewWithSpinner
-              {...props}
-              isLoading={loading} />}
+          component={CollectionsOverviewContainer}
         />
         <Route
           path={`${match.path}/:collectionId`}
-          render={(props) =>
-            <CollectionPageWithSpinner
-              {...props}
-              isLoading={loading} />}
+          component={CollectionContainer}
         />
       </div>
     )
@@ -64,7 +63,8 @@ class ShopPage extends Component {
 
 const mapDispatchToProps = dispatch => {
   return {
-    updateCollections: collectionsMap => dispatch(updateCollections(collectionsMap))
+    fetchCollectionsStart: () => dispatch(fetchCollectionsStart())
+    // fetchCollectionsStartAsync: () => dispatch(fetchCollectionsStartAsync())
   }
 }
 

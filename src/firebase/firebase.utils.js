@@ -9,51 +9,48 @@ const config = {
     projectId: "eshop-db-c1750",
     storageBucket: "",
     messagingSenderId: "687607517371",
-    appId: "1:687607517371:web:227cb0e6b73d26f381199e",
-    measurementId: "G-E6XHXF639F"
-}
-
-export const createUserProfileDocument = async(userAuth, additionalData) => {
-    if (!userAuth) {
-        return;
-    } else {
-        //get the queryrefernece (a query is as asking firestore for data/reference (can use CRUD method)is an obj represent the current place  ih the database that we are querying)
-        const userRef = firestore.doc(`users/${userAuth.uid}`)
-            //use ref.get() to get the data(snapshot) by reference
-        const snapShot = await userRef.get()
-
-        if (!snapShot.exists) {
-            const { displayName, email } = userAuth;
-            const createdAt = new Date();
-
-            try {
-                // create data from userAuth obj
-                await userRef.set({
-                    displayName,
-                    email,
-                    createdAt,
-                    ...additionalData
-                })
-            } catch (error) {
-                console.log('error creating user', error.message)
-            }
-        }
-        return userRef;
-    }
+    appId: "1:687607517371:web:227cb0e6b73d26f381199e"
 }
 
 firebase.initializeApp(config)
+
+export const createUserProfileDocument = async(userAuth, additionalData) => {
+    if (!userAuth) return;
+
+    const userRef = firestore.doc(`users/${userAuth.uid}`);
+
+    const snapShot = await userRef.get();
+
+    if (!snapShot.exists) {
+        const { displayName, email } = userAuth;
+        const createdAt = new Date();
+        try {
+            await userRef.set({
+                displayName,
+                email,
+                createdAt,
+                ...additionalData
+            });
+        } catch (error) {
+            console.log('error creating user', error.message);
+        }
+    }
+
+    return userRef;
+};
+
+
 
 export const auth = firebase.auth();
 export const firestore = firebase.firestore();
 
 
 // set google will always pop up while sign in and auth
-const provider = new firebase.auth.GoogleAuthProvider();
-provider.setCustomParameters({ prompt: 'select_account' })
+export const googleProvider = new firebase.auth.GoogleAuthProvider();
+googleProvider.setCustomParameters({ prompt: 'select_account' })
 
 export const signInWithGoogle = () => {
-    auth.signInWithPopup(provider)
+    auth.signInWithPopup(googleProvider)
 }
 
 export const addCollectionAndDocuments = async(collectionKey, objectsToAdd) => {
@@ -96,6 +93,16 @@ export const covertCollectionsSnapshotToMap = (collectionsSnapshot) => {
         acc[collection.title.toLowerCase()] = collection;
         return acc;
     }, {})
+}
+
+export const getCurrentUser = () => {
+    // A Promise oriented way fo saga
+    return new Promise((resolve, reject) => {
+        const unsubscribe = auth.onAuthStateChanged(userAuth => {
+            unsubscribe(); // once we get userAuth, we fire unsubsrice
+            resolve(userAuth)
+        }, reject)
+    })
 }
 
 export default firebase;

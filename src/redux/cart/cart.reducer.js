@@ -1,40 +1,47 @@
 import { cartActionTypes } from './cart.actionTypes'
 import { addItemToCart, removeItemFromCart } from './cart.utils'
 const INITIAL_STATE = {
-  hidden: true,
-  cartItems: []
+    hidden: true,
+    cartItems: []
 }
 
 const cartReducer = (state = INITIAL_STATE, action) => {
-  switch (action.type) {
-    case cartActionTypes.TOGGLE_CART_HIDDEN:
-      return {
-        ...state,
-        hidden: !state.hidden
-      }
+    switch (action.type) {
+        case cartActionTypes.TOGGLE_CART_HIDDEN:
+            return {
+                ...state,
+                hidden: !state.hidden
+            }
 
-    case cartActionTypes.ADD_ITEM:
-      return {
-        ...state,
-        cartItems: addItemToCart(state.cartItems, action.payload) // use the function and payload to make a new state
-      }
+        case cartActionTypes.ADD_ITEM:
+            return {
+                ...state,
+                cartItems: addItemToCart(state.cartItems, action.payload) // use the function and payload to make a new state
+            }
 
-    case cartActionTypes.REMOVE_ITEM:
-      return {
-        ...state,
-        cartItems: removeItemFromCart(state.cartItems, action.payload) // use the function and payload to make a new state
-      }
+        case cartActionTypes.REMOVE_ITEM:
+            return {
+                ...state,
+                cartItems: removeItemFromCart(state.cartItems, action.payload) // use the function and payload to make a new state
+            }
 
-    case cartActionTypes.CLEAR_ITEM_FROM_CART:
-      return {
-        ...state,
-        cartItems: state.cartItems.filter(cartItem =>
-          cartItem.id !== action.payload.id
-        )
-      }
-    default:
-      return state
-  }
+        case cartActionTypes.CLEAR_ITEM_FROM_CART:
+            return {
+                ...state,
+                cartItems: state.cartItems.filter(cartItem =>
+                    cartItem.id !== action.payload.id
+                )
+            }
+
+        case cartActionTypes.CLEAR_CART:
+            return {
+                ...state,
+                cartItems: []
+
+            }
+        default:
+            return state
+    }
 }
 
 export default cartReducer
